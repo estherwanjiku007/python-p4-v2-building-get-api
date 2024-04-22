@@ -20,8 +20,38 @@ def index():
     return "Index for Game/Review/User API"
 
 # start building your API here
+@app.route("/games")
+def games():
+    my_games=[game.to_dict() for game in Game.query.all()]
+    # for game in Game.query.all():
+    #     game_dict=game.to_dict()
+    #     my_games.append(game_dict)
+    response=make_response(my_games,200)
+    return response
+    
+@app.route("/games/<int:id>")
+def game_by_id(id):
+    game = Game.query.filter(Game.id == id).first()
 
-
+    game_dict=game.to_dict()
+    response = make_response(
+        game_dict,
+        200
+    )
+    return response
+   
+@app.route("/games/users/<int:id>")
+def game_users_by_id(id):
+    game=Game.query.filter(Game.id==id).first()
+    #Before i added the assciation proxy users=[review.user.to_dict(rules=("-reviews",)) for review in game.reviews]
+    users=[user.to_dict(rules=("-reviews")) for user in game.users]#After association proxy
+    # for review in game.reviews:
+    #     user=review.user
+    #     user_dict=user.to_dict(rules=("-reviews"))
+    #     users.append(user_dict)
+    response=make_response(users,200)
+    
+    return response
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
 
